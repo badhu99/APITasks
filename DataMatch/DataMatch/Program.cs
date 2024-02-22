@@ -1,3 +1,5 @@
+using DataMatch.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,7 +9,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.Add
+builder.Services.AddScoped<IDiffService, DiffService>();
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
