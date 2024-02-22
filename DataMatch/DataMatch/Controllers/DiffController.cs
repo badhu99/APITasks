@@ -25,7 +25,7 @@ namespace DataMatch.Controllers
                 return BadRequest();
 
             _diffService.SetData(id, DiffDirection.Left, body.Data);
-            return Created();
+            return StatusCode(201);
         }
 
         [HttpPut("{id}/right")]
@@ -36,7 +36,7 @@ namespace DataMatch.Controllers
                 return BadRequest();
 
             _diffService.SetData(id, DiffDirection.Right, body.Data);
-            return Created();
+            return StatusCode(201);
         }
 
         [HttpGet("{id}")]
