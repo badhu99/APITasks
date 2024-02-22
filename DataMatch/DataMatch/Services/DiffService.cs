@@ -21,43 +21,13 @@ namespace DataMatch.Services
 
         public DataMatchResponse? DataMatch(int id)
         {
-            DataMatchResponse response = new();
-
             if (_memoryCache.TryGetValue(id, out DiffModel model) == false || model == null)
                 return null;
 
             if (string.IsNullOrWhiteSpace(model.Right) || string.IsNullOrWhiteSpace(model.Left))
                 return null;
 
-            if (model.Left.Length != model.Right.Length)
-            {
-                response.DiffResultType = "SizeDoNotMatch";
-                return response;
-            }
-
-            if (string.Equals(model.Left, model.Right, StringComparison.Ordinal))
-            {
-                response.DiffResultType = "Equals";
-                return response;
-            }
-
-            List<Diff> diffs = new();
-            for (int i = 0; i < model.Left.Length; i++)
-            {
-                if (model.Left[i] != model.Right[i])
-                {
-                    int length = 1;
-                    while (model.Left[i + length] != model.Right[i + length] && i + length < model.Left.Length)
-                        length++;
-
-                    diffs.Add(new Diff { Offset = i, Length = length });
-                    i += length - 1;
-                }
-            }
-
-            response.DiffResultType = "ContentDoNotMatch";
-            response.Diffs = diffs;
-            return response;
+            return model.Compare();
         }
 
         public void SetData(int id, DiffDirection direction, string data)
