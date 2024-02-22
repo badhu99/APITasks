@@ -33,7 +33,7 @@ namespace DataMatch.Services
         public void SetData(int id, DiffDirection direction, string data)
         {
             if(_memoryCache.TryGetValue(id, out DiffModel model) == false || model == null)
-                model = new DiffModel();
+                model = new DiffModel() { Left = "", Right = ""};
 
             model.Left = direction == DiffDirection.Left ? data : model.Left;
             model.Right = direction == DiffDirection.Right ? data : model.Right;

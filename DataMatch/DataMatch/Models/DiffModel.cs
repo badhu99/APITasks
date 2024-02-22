@@ -2,39 +2,54 @@
 {
     public class DiffModel
     {
-        public string Left { get; set; }
-        public string Right { get; set; }
+        private byte[] _rightDecoded = Array.Empty<byte>();
+        private byte[] _leftDecoded = Array.Empty<byte>();
+
+        public string Left
+        {
+            get
+            {
+                return Convert.ToBase64String(_leftDecoded) ?? "";
+            }
+            set { _leftDecoded = Convert.FromBase64String(value); }
+        }
+        public string Right
+        {
+            get
+            {
+                return Convert.ToBase64String(_rightDecoded) ?? "";
+            }
+            set {
+                _rightDecoded = Convert.FromBase64String(value);
+            }
+        }
 
         public DataMatchResponse Compare()
         {
             DataMatchResponse response = new();
-            if (Left.Length != Right.Length)
+            if (_rightDecoded.Length != _leftDecoded.Length)
             {
                 response.DiffResultType = "SizeDoNotMatch";
                 return response;
             }
 
-            if (string.Equals(Left, Right, StringComparison.Ordinal))
-            {
-                response.DiffResultType = "Equals";
-                return response;
-            }
-
+            bool boolLeftRight = true;
             List<Diff> diffs = new();
-            for (int i = 0; i < Left.Length; i++)
+            for (int i = 0; i < _rightDecoded.Length; i++)
             {
-                if (Left[i] != Right[i])
+                if (_leftDecoded[i] != _rightDecoded[i])
                 {
                     int length = 1;
-                    while (Left[i + length] != Right[i + length] && i + length < Left.Length)
+                    while (i + length < _leftDecoded.Length && _leftDecoded[i + length] != _rightDecoded[i + length])
                         length++;
                     diffs.Add(new Diff { Offset = i, Length = length });
                     i += length - 1;
+                    boolLeftRight = false;
                 }
             }
 
-            response.DiffResultType = "ContentDoNotMatch";
-            response.Diffs = diffs;
+            response.DiffResultType = boolLeftRight ? "Equals" : "ContentDoNotMatch";
+            response.Diffs = boolLeftRight ? null : diffs;
             return response;
         }
     }
